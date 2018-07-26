@@ -27,10 +27,21 @@ Envelop envelop;
 GridModel3D venue;
 
 void setup() {
+  long setupStart = System.nanoTime();
   // Processing setup, constructs the window and the LX instance
   size(800, 720, P3D);
   lx = new heronarts.lx.studio.LXStudio(this, buildModel(), MULTITHREADED);
   lx.ui.setResizable(RESIZABLE);
+  //venue = getModel();
+  //try {
+   // lx = new LXStudio(this, venue);
+  //} catch (Exception x) {
+   // x.printStackTrace();
+    //throw x;
+   // }
+  
+  long setupFinish = System.nanoTime();
+  println("Total initialization time: " + ((setupFinish - setupStart) / 1000000) + "ms"); 
 }
 
 void initialize(final heronarts.lx.studio.LXStudio lx, heronarts.lx.studio.LXStudio.UI ui) {
@@ -39,13 +50,42 @@ void initialize(final heronarts.lx.studio.LXStudio lx, heronarts.lx.studio.LXStu
   envelop = new Envelop(lx);
   lx.engine.registerComponent("envelop", envelop);
   lx.engine.addLoopTask(envelop);
+  
+  // Missing many components needed to receive OSC signals cleanly from Ableton
+  /*
+  // Output drivers
+  try {
+    lx.engine.output.gammaCorrection.setValue(1);
+    lx.engine.output.enabled.setValue(false);
+   // lx.addOutput(getOutput(lx));
+  } catch (Exception x) {
+    throw new RuntimeException(x);
+  }
+   */ 
+  // OSC drivers
+ //try {
+   // lx.engine.osc.receiver(3344).addListener(new EnvelopOscControlListener(lx));
+   // lx.engine.osc.receiver(3355).addListener(new EnvelopOscSourceListener());
+  //  lx.engine.osc.receiver(3366).addListener(new EnvelopOscMeterListener());
+   // adding this breaks the EnvelopOSCListener tab with a NullPointerException probably because I didn't add all the code 
+   // lx.engine.osc.receiver(3377).addListener(new EnvelopOscListener());
+ // }  catch (SocketException sx) {
+  //  throw new RuntimeException(sx);
+  //}
+
+  ui.theme.setPrimaryColor(#008ba0);
+  ui.theme.setSecondaryColor(#00a08b);
+  ui.theme.setAttentionColor(#a00044);
+  ui.theme.setFocusColor(#0094aa);
+  ui.theme.setSurfaceColor(#cc3300);
+  
+  
 }
 
 void onUIReady(heronarts.lx.studio.LXStudio lx, heronarts.lx.studio.LXStudio.UI ui) {
   //hides the Audio pane on e top left side bar 
-  ui.leftPane.audio.setVisible(false);
-  //ui.preview.addComponent(getUIVenue());
-  // UNABLE TO ADD THIS COMMAND WITHOUT GETTING NullPointer Error in UI tab under channels
+  //ui.leftPane.audio.setVisible(false);
+  //ui.preview.addComponent(getUIVenue());  
   ui.preview.addComponent(new UISoundObjects());
   //ui.preview.setPhi(PI/32).setMinRadius(2*FEET).setMaxRadius(48*FEET);
   new UIEnvelopSource(ui, ui.leftPane.global.getContentWidth()).addToContainer(ui.leftPane.global, 2);
